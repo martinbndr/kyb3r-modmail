@@ -1,4 +1,4 @@
-__version__ = "4.0.1"
+__version__ = "4.0.2"
 
 
 import asyncio
@@ -70,7 +70,7 @@ class ModmailBot(commands.Bot):
         self.config.populate_cache()
 
         intents = discord.Intents.all()
-        if not self.config['enable_presence_intent']:
+        if not self.config["enable_presence_intent"]:
             intents.presences = False
 
         super().__init__(command_prefix=None, intents=intents)  # implemented in `get_prefix`
@@ -94,7 +94,7 @@ class ModmailBot(commands.Bot):
         if guild is None:
             guild = self.guild
         if guild.icon is None:
-            return self.user.display_avatar.url
+            return "https://cdn.discordapp.com/embed/avatars/0.png"
         return guild.icon.url
 
     def _resolve_snippet(self, name: str) -> typing.Optional[str]:
@@ -229,7 +229,7 @@ class ModmailBot(commands.Bot):
                 self._connected = asyncio.Event()
                 self.session = ClientSession(loop=self.loop)
 
-                if self.config['enable_presence_intent']:
+                if self.config["enable_presence_intent"]:
                     logger.info("Starting bot with presence intent.")
                 else:
                     logger.info("Starting bot without presence intent.")
@@ -876,7 +876,7 @@ class ModmailBot(commands.Bot):
         if reaction != "disable":
             try:
                 await msg.add_reaction(reaction)
-            except (discord.HTTPException, discord.BadArgument) as e:
+            except (discord.HTTPException, TypeError) as e:
                 logger.warning("Failed to add reaction %s: %s.", reaction, e)
                 return False
         return True
@@ -1304,7 +1304,7 @@ class ModmailBot(commands.Bot):
                     for msg in linked_messages:
                         await msg.remove_reaction(reaction, self.user)
                     await message.remove_reaction(reaction, self.user)
-                except (discord.HTTPException, discord.BadArgument) as e:
+                except (discord.HTTPException, TypeError) as e:
                     logger.warning("Failed to remove reaction: %s", e)
 
     async def handle_react_to_contact(self, payload):
