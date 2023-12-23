@@ -16,8 +16,6 @@ FROM base as builder
 
 RUN apk add build-base libffi-dev
 
-USER modmail
-
 RUN python -m venv $VIRTUAL_ENV
 
 COPY --chown=modmail:modmail requirements.txt .
@@ -34,5 +32,7 @@ COPY --chown=modmail:modmail . .
 
 # this disables the internal auto-update
 ENV USING_DOCKER yes
+
+USER modmail
 
 CMD ["python", "bot.py"]
