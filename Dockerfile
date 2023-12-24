@@ -1,11 +1,11 @@
 FROM python:3.11-alpine as base
 
 RUN apk add --no-cache \
-	# cairosvg dependencies
+    # cairosvg dependencies
     cairo-dev cairo cairo-tools \
     # pillow dependencies
-    jpeg-dev zlib-dev freetype-dev lcms2-dev \
-	&& adduser -D -h /home/modmail -g 'Modmail' modmail
+    jpeg-dev zlib-dev \
+    && adduser -D -h /home/modmail -g 'Modmail' modmail
 
 ENV VIRTUAL_ENV=/home/modmail/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -20,7 +20,7 @@ RUN python -m venv $VIRTUAL_ENV
 
 COPY --chown=modmail:modmail requirements.txt .
 RUN pip install --upgrade pip setuptools && \
-	pip install -r requirements.txt
+    pip install -r requirements.txt
 
 FROM base as runtime
 
