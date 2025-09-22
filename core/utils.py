@@ -39,6 +39,7 @@ __all__ = [
     "get_top_role",
     "get_joint_id",
     "extract_block_timestamp",
+    "return_or_truncate",
     "AcceptButton",
     "DenyButton",
     "ConfirmThreadCreationView",
@@ -370,7 +371,7 @@ def create_not_found_embed(word, possibilities, name, n=2, cutoff=0.6) -> discor
 
 def parse_alias(alias, *, split=True):
     def encode_alias(m):
-        return "\x1AU" + base64.b64encode(m.group(1).encode()).decode() + "\x1AU"
+        return "\x1aU" + base64.b64encode(m.group(1).encode()).decode() + "\x1aU"
 
     def decode_alias(m):
         return base64.b64decode(m.group(1).encode()).decode()
@@ -392,7 +393,7 @@ def parse_alias(alias, *, split=True):
         iterate = [alias]
 
     for a in iterate:
-        a = re.sub("\x1AU(.+?)\x1AU", decode_alias, a)
+        a = re.sub("\x1aU(.+?)\x1aU", decode_alias, a)
         if a[0] == a[-1] == '"':
             a = a[1:-1]
         aliases.append(a)
@@ -572,6 +573,12 @@ def extract_block_timestamp(reason, id_):
             raise
 
     return end_time, after
+
+
+def return_or_truncate(text, max_length):
+    if len(text) <= max_length:
+        return text
+    return text[: max_length - 3] + "..."
 
 
 class AcceptButton(discord.ui.Button):
