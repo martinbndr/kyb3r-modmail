@@ -6,14 +6,118 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project mostly adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 however, insignificant breaking changes do not guarantee a major version bump, see the reasoning [here](https://github.com/modmail-dev/modmail/issues/319). If you're a plugin developer, note the "BREAKING" section.
 
-
-# [UNRELEASED]
+# v4.2.1
 
 ### Added
-- New .env config option: `REGISTRY_PLUGINS_ONLY`, restricts to only allow adding registry plugins. ([PR #3247](https://github.com/modmail-dev/modmail/pull/3247))
+* `unsnooze_history_limit`: Limits the number of messages replayed when unsnoozing (genesis message and notes are always shown).
+* `snooze_behavior`: Choose between `delete` (legacy) or `move` behavior for snoozing.
+* `snoozed_category_id`: Target category for `move` snoozing; required when `snooze_behavior` is `move`.
+* Thread-creation menu: Adds an interactive select step before a thread channel is created.
+  * Commands:
+    * `threadmenu toggle`: Enable/disable the menu.
+    * `threadmenu show`: List current top-level options.
+    * `threadmenu option add`: Interactive wizard to create an option.
+    * `threadmenu option edit/remove/show`: Manage or inspect an existing option.
+    * `threadmenu submenu create/delete/list/show`: Manage submenus.
+    * `threadmenu submenu option add/edit/remove`: Manage options inside a submenu.
+  * Configuration / Behavior:
+    * Per-option `category` targeting when creating a thread; falls back to `main_category_id` if invalid/missing.
+    * Optional selection logging (`thread_creation_menu_selection_log`) posts the chosen option in the new thread.
+    * Anonymous prompt support (`thread_creation_menu_anonymous_menu`).
+
+### Changed
+- Renamed `max_snooze_time` to `snooze_default_duration`. The old config will be invalidated.
+- When `snooze_behavior` is set to `move`, the snoozed category now has a hard limit of 49 channels. New snoozes are blocked once it’s full until space is freed.
+- When switching `snooze_behavior` to `move` via `?config set`, the bot reminds admins to set `snoozed_category_id` if it’s missing.
+- Thread-creation menu options & submenu options now support an optional per-option `category` target. The interactive wizards (`threadmenu option add` / `threadmenu submenu option add`) and edit commands allow specifying or updating a category. If the stored category is missing or invalid at selection time, channel creation automatically falls back to `main_category_id`.
+
+
+# v4.2.0
+
+Upgraded discord.py to version 2.6.3, added support for CV2.
+Forwarded messages now properly show in threads, rather than showing as an empty embed.
+
+### Fixed
+- Make Modmail keep working when typing is disabled due to an outage caused by Discord.
+- Resolved an issue where forwarded messages appeared as empty embeds.
+- Fixed internal message handling and restoration processes.
+- Eliminated duplicate logs and notes.
+- Addressed inconsistent use of `logkey` after ticket restoration.
+- Fixed issues with identifying the user who sent internal messages.
+- Solved an ancient bug where closing with words like `evening` wouldn't work.
+- Fixed the command from being included in the reply  in rare conditions.
+
+### Added
+Commands:
+* `snooze`: Initiates a snooze action.
+* `snoozed`: Displays snoozed items.
+* `unsnooze`: Reverses the snooze action.
+* `clearsnoozed`: Clears all snoozed items.
+
+Configuration Options:
+* `max_snooze_time`: Sets the maximum duration for snooze.
+* `snooze_title`: Customizes the title for snooze notifications.
+* `snooze_text`: Customizes the text for snooze notifications.
+* `unsnooze_text`: Customizes the text for unsnooze notifications.
+* `unsnooze_notify_channel`: Specifies the channel for unsnooze notifications.
+* `thread_min_characters`: Minimum number of characters required.
+* `thread_min_characters_title`: Title shown when the message is too short.
+* `thread_min_characters_response`: Response shown to the user if their message is too short.
+* `thread_min_characters_footer`: Footer displaying the minimum required characters.
+
+# v4.1.2
+
+### Fixed
+- Members not caching correctly for large servers. ([PR #3365](https://github.com/modmail-dev/Modmail/pull/3365))
+
+# v4.1.1
+
+### Fixed
+- `?msglink` now supports threads with multiple recipients. ([PR #3341](https://github.com/modmail-dev/Modmail/pull/3341))
+- Fixed persistent notes not working due to discord.py internal change. ([PR #3324](https://github.com/modmail-dev/Modmail/pull/3324))
+
+### Added
+- Support for custom activities with `?activity custom <text>` ([PR #3352](https://github.com/modmail-dev/Modmail/pull/3352))
+
+# v4.1.0
+
+Drops support for Python 3.9. Python 3.10 and Python 3.11 are now the only supported versions.
+
+### Fixed
+- GIF stickers no longer cause the bot to crash.
+- `?alias make/create` as aliases to `?alias add`. This improves continuity between the bot and its command structure. ([PR #3195](https://github.com/kyb3r/modmail/pull/3195))
+- Loading the blocked list with the `?blocked` command takes a long time when the list is large. ([PR #3242](https://github.com/kyb3r/modmail/pull/3242))
+- Reply not being forwarded from DM. ([PR #3239](https://github.com/modmail-dev/modmail/pull/3239))
+- Cleanup imports after removing/unloading a plugin. ([PR #3226](https://github.com/modmail-dev/Modmail/pull/3226))
+- Fixed a syntactic error in the close message when a thread is closed after a certain duration. ([PR #3233](https://github.com/modmail-dev/Modmail/pull/3233))
+- Removed an extra space in the help command title when the command has no parameters. ([PR #3271](https://github.com/modmail-dev/Modmail/pull/3271))
+- Corrected some incorrect config help descriptions. ([PR #3277](https://github.com/modmail-dev/Modmail/pull/3277))
+- Rate limit issue when fetch the messages due to reaction linking. ([PR #3306](https://github.com/modmail-dev/Modmail/pull/3306))
+- Update command fails when the plugin is invalid. ([PR #3295](https://github.com/modmail-dev/Modmail/pull/3295))
+
+### Added
+- `?log key <key>` to retrieve the log link and view a preview using a log key. ([PR #3196](https://github.com/modmail-dev/Modmail/pull/3196))
+- `REGISTRY_PLUGINS_ONLY`, environment variable, when set, restricts to only allow adding registry plugins. ([PR #3247](https://github.com/modmail-dev/modmail/pull/3247))
+- `DISCORD_LOG_LEVEL` environment variable to set the log level of discord.py. ([PR #3216](https://github.com/modmail-dev/Modmail/pull/3216))
+- `STREAM_LOG_FORMAT` and `FILE_LOG_FORMAT` environment variable to set the log format of the stream and file handlers respectively. Possible options are `json` and `plain` (default). ([PR #3305](https://github.com/modmail-dev/Modmail/pull/3305))
+- `LOG_EXPIRATION` environment variable to set the expiration time of logs. ([PR #3257](https://github.com/modmail-dev/Modmail/pull/3257))
+- New registry plugins: [`autoreact`](https://github.com/martinbndr/kyb3r-modmail-plugins/tree/master/autoreact) and [`rename`](https://github.com/Nicklaus-s/modmail-plugins/tree/main/rename).
+- Improved join/leave message for multiple servers.
 
 ### Changed
 - Repo moved to https://github.com/modmail-dev/modmail.
+- Channel name no longer shows `-0` if the user has migrated to the new username system.
+- `?note` and `?reply` now allows you to send a sticker without any message.
+- Guild icons in embed footers and author urls now have a fixed size of 128. ([PR #3261](https://github.com/modmail-dev/modmail/pull/3261))
+- Discord.py internal logging is now enabled by default. ([PR #3216](https://github.com/modmail-dev/Modmail/pull/3216))
+- The confirm-thread-creation dialog now uses buttons instead of reactions. ([PR #3273](https://github.com/modmail-dev/Modmail/pull/3273))
+- `?disable all` no longer overrides `?disable new`. ([PR #3278](https://github.com/modmail-dev/Modmail/pull/3278))
+- Dropped root privileges for Modmail running under Docker. ([PR #3284](https://github.com/modmail-dev/Modmail/pull/3284))
+
+### Internal
+- Renamed `Bot.log_file_name` to `Bot.log_file_path`. Log files are now created at `temp/logs/modmail.log`. ([PR #3216](https://github.com/modmail-dev/Modmail/pull/3216))
+- `ConfigManager.get` no longer accepts two positional arguments: the `convert` argument is now keyword-only.
+- Various dependencies have been updated to their latest versions.
 
 # v4.0.2
 
